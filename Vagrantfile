@@ -18,8 +18,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.cache.scope = :box
   end
   ip = "172.16.78.250"
-  config.vm.box = "centos/7"
+  config.vm.box = "bento/centos-7.2"
   config.vm.synced_folder ".", "/shared", type: "nfs"
+  ssh_pub_key = File.readlines("~/.ssh/id_rsa.pub").first.strip
   config.vm.define "master" do |master|
     master.vm.network :private_network, :ip => "#{ip}"
     master.vm.hostname = "master"
@@ -28,7 +29,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
     master.vm.provision :shell, :inline => "sed 's/127.0.0.1.*master/#{ip} master/' -i /etc/hosts"
     master.vm.provision :shell do |s|
-      s.inline = "sh /vagrant/install.sh $1 $2 $3 $4"
+      s.inline = "sh /shared/install.sh $1 $2 $3 $4"
       s.args = ["-master", "#{ip}", "none", "#{$token}"]
     end
   end
@@ -36,18 +37,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.define vm_name = "node-%d" % i do |node|
       node.vm.network :private_network, :ip => "#{workerIP(i)}"
       node.vm.hostname = vm_name
+      ssh_pub_key = File.readlines("~/.ssh/id_rsa.pub").first.strip
       node.vm.provider "virtualbox" do |v|
         v.memory = $worker_memory
       end
       node.vm.provision :shell, :inline => "sed 's/127.0.0.1.*node-#{i}/#{workerIP(i)} node-#{i}/' -i /etc/hosts"
       node.vm.provision :shell do |s|
-        s.inline = "sh /vagrant/install.sh $1 $2 $3 $4"
+        s.inline = "sh /shared/install.sh $1 $2 $3 $4"
         if i == $worker_count
           s.args = ["-node", "#{ip}", "-last", "#{$token}"]
-          #EXTRA ADDONS
-          if $grafana
-            node.vm.provision :shell, :inline => "kubectl --kubeconfig /shared/admin.conf apply -f /vagrant/influxdb/"
-          end
         else
           s.args = ["-node", "#{ip}", "none", "#{$token}"]
         end

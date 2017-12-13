@@ -20,25 +20,15 @@ weave-net-eurrr                         2/2       Running   0          1h
 weave-net-ph7l3                         2/2       Running   0          1h
 ```
 
-## plugins
-- weave-net
-- dashboard
 
-## Extra plugins
-- Grafana + InfluxDB (must be activated in config.rb)
-![grafana](https://cloud.githubusercontent.com/assets/3530471/20548729/e84b6756-b160-11e6-8bd6-a78eb2a95d88.png)
+
 
 ## Prerequisites
 - Vagrant 1.8 (with NFS support)
 
-#### Note for Windows
-
-- The vagrant-winnfsd plugin will be installed in order to enable NFS shares.
-- The project will run some bash script under the VirtualMachines. These scripts line ending need to be in LF. Git for windows set ```core.autocrlf``` true by default at the installation time. When you clone this project repository, this parameter (set to true) ask git to change all line ending to CRLF. This behavior need to be changed before cloning the repository (or after for each files by hand). We recommand to turn this to off by running ```git config --global core.autocrlf false``` and ```git config --global core.eol lf``` before cloning. Then, after cloning, do not forget to turn the behavior back if you want to run other windows projects: ```git config --global core.autocrlf true``` and ```git config --global core.eol crlf```.
 
 ## Installation
 ```bash
-git pull https://github.com/JulienLenne/vagrant-centos-kubernetes.git
 cd vagrant-centos-kubernetes/
 vagrant up
 ```
@@ -55,7 +45,7 @@ $token = "56225f.9096af3559800a6a"
 # Total memory of master
 $master_memory = 1536
 # Increment to have more nodes
-$worker_count = 2
+$worker_count = 3
 # Total memory of nodes
 $worker_memory = 1536
 # Add Grafana with InfluxDB (work with heapster)
@@ -82,6 +72,3 @@ kubectl proxy --kubeconfig admin.conf # http://localhost:8001/ui on host
 ```
 
 ### Next features
-- Can add more master
-- Can add more etcd
-- Include flocker with full support of ZFS
